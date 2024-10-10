@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("./assets/fonts/stylesheet.css");
+
+:root {
+    background-color: #181818;
+    color: rgba(255, 255, 255, 0.87);
+    color-scheme: light dark;
+    font-family: "Neue Machina", sans-serif;
+    /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
+    font-synthesis: none;
+    font-weight: 400;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        /* background-color: #f8f8f8; */
+        background: #060606;
+        color: #fff;
+    }
+}
+
+body {
+    padding: 0 2rem;
+    max-width: 1440px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.glass-background {
+    background: rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(0.5rem);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.custom-textarea:focus {
+    border-color: #4caf50;
+    outline: none;
+}
+
+/* Custom scrollbar styles for webkit browsers */
+.custom-textarea::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+
+.custom-textarea::-webkit-scrollbar-thumb {
+    background-color: rgba(
+        255,
+        255,
+        255,
+        0.5
+    ); /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.custom-textarea::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.7); /* Color on hover */
+}
+
+.custom-textarea::-webkit-scrollbar-track {
+    background: transparent; /* Background for the track */
+}
+
+.top-left-vector-gradient {
+    position: absolute;
+    width: 1515.34px;
+    height: 772.99px;
+    top: -242px;
+    left: -117px;
+    opacity: 1;
+    background-image: url("./assets/svgs/top-left.png");
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+.middle-home-vector-gradient {
+    position: absolute;
+    width: 1595.85px;
+    height: 40%;
+    top: 40%;
+    left: 10rem;
+    opacity: 0.6;
+    background-image: url("./assets/svgs/middle-home.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    transform: rotate(14.54deg);
+    filter: blur(5rem);
+}
+
+.middle-home-mobile-vector-gradient {
+    position: absolute;
+    width: 155.85px;
+    height: 40%;
+    top: 40%;
+    left: 3rem;
+    opacity: 0.6;
+    background-image: url("./assets/svgs/middle-home.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 10;
+    transform: rotate(14.54deg);
+    filter: blur(5rem);
+}
+
+.custom-gradient {
+    background: linear-gradient(to bottom, #023430, #3b4a25);
+    background-size: 100% 200%; /* Set the initial background size */
+    transition: background-size 0.3s ease-in-out; /* Smooth transition */
+}
+
+.custom-gradient:hover {
+    background-size: 100% 150%; /* Background size change on hover */
+}
