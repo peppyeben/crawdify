@@ -34,6 +34,18 @@ body {
     margin: 0 auto;
     overflow-x: hidden;
     position: relative;
+    opacity: 1;
+    transition: opacity 5s ease-in; /* Adjust duration as needed */
+}
+
+/* Fade-out class */
+.fade-exit {
+    opacity: 0;
+}
+
+/* Optional: Fade-in class, in case you want to control fading in separately */
+.fade-enter {
+    opacity: 1;
 }
 
 .glass-background {
@@ -131,4 +143,18 @@ input[type="number"] {
 
 .custom-gradient:hover {
     background-size: 100% 150%; /* Background size change on hover */
+}
+
+/* global.css */
+.page-transition {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.page-transition.fade-in {
+    opacity: 1;
+}
+
+.page-transition.fade-out {
+    opacity: 0;
 }

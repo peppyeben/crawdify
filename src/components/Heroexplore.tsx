@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import Campaigncard from "./Campaigncard";
+import Exploresection from "./Exploresection";
 
 const Heroexplore = () => {
     return (
@@ -12,19 +13,26 @@ const Heroexplore = () => {
                         Make a Difference: Contribute or Launch a Campaign
                     </span>
                     <span>
-                        Join a community of changemakers and fund projects that matter.
+                        Join a community of changemakers and fund projects that
+                        matter.
                     </span>
                 </p>
-                <Link href={'/explore'} className="rounded-lg flex justify-center items-center px-5 py-2 font-bold custom-gradient">
+                <Link
+                    href={"/explore"}
+                    className="rounded-lg flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                >
                     <span>See More</span>
-                    <img src="./img/right-arrow-icon.png" alt="" className="w-5" />
+                    <img
+                        src="./img/right-arrow-icon.png"
+                        alt=""
+                        className="w-5"
+                    />
                 </Link>
             </section>
-            <section className="grid grid-cols-3 gap-4 xl:grid-cols-4">
-                {[0, 1, 2, 3, 4, 5].map((x) => (
-                    <Campaigncard key={x}></Campaigncard>
-                ))}
-            </section>
+            {/* <section className="grid grid-cols-3 gap-4 xl:grid-cols-4">
+                
+            </section> */}
+            <Exploresection></Exploresection>
         </section>
     );
 };

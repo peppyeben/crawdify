@@ -6,8 +6,6 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 function Explore() {
     const account = useAccount();
-    const { connectors, connect, status, error } = useConnect();
-    const { disconnect } = useDisconnect();
 
     return (
         <>
@@ -17,9 +15,10 @@ function Explore() {
                         Your dreams funded by the community.
                     </h4>
                     <p className="">
-                        Join forces to bring your dreams to life. Discover inspiring
-                        projects, connect with like-minded individuals, and make a
-                        tangible difference in the world.
+                        Join forces to bring your dreams to life. Discover
+                        inspiring projects, connect with like-minded
+                        individuals, and make a tangible difference in the
+                        world.
                     </p>
                     <Link href={"/create"}>
                         <button
@@ -36,6 +35,7 @@ function Explore() {
                     </Link>
                 </section>
                 <div className="w-full bg-white p-[0.01rem]"></div>
+
                 <Exploresection></Exploresection>
             </section>
         </>

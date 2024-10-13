@@ -7,6 +7,10 @@ import "@rainbow-me/rainbowkit/styles.css";
 import dynamic from "next/dynamic";
 import Footer from "src/components/Footer";
 import Navbar from "src/components/Navbar";
+import { LoaderProvider } from "src/components/Loadercontext";
+import LoaderWrapper from "src/components/Loaderwrapper";
+import { ModalProvider } from "src/components/Modalcontext";
+import ModalWrapper from "src/components/Modalwrapper";
 
 const OnchainProviders = dynamic(
     () => import("src/components/OnchainProviders"),
@@ -38,23 +42,31 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <div className="top-left-vector-gradient hidden lg:block"></div>
-                <div className="middle-home-vector-gradient hidden lg:block"></div>
-                <div className="middle-home-mobile-vector-gradient lg:hidden"></div>
-                <OnchainProviders>
-                    <div className="relative hidden overflow-hidden lg:flex flex-col space-y-6 bg-transparent">
-                        <Navbar></Navbar>
-                        {children}
-                        <Footer></Footer>
-                    </div>
+                <ModalProvider>
+                    <ModalWrapper>
+                        <LoaderProvider>
+                            <LoaderWrapper>
+                                <div className="top-left-vector-gradient hidden lg:block"></div>
+                                <div className="middle-home-vector-gradient hidden lg:block"></div>
+                                <div className="middle-home-mobile-vector-gradient lg:hidden"></div>
+                                <OnchainProviders>
+                                    <div className="relative hidden overflow-hidden lg:flex flex-col space-y-6 bg-transparent">
+                                        <Navbar></Navbar>
+                                        {children}
+                                        <Footer></Footer>
+                                    </div>
 
-                    <div className="lg:hidden h-screen flex justify-center items-center mx-auto px-14">
-                        <p className="text-lg text-left">
-                            CRAWDIFY is available on just bigger screens for
-                            now.
-                        </p>
-                    </div>
-                </OnchainProviders>
+                                    <div className="lg:hidden h-screen flex justify-center items-center mx-auto px-14">
+                                        <p className="text-lg text-left">
+                                            CRAWDIFY is available on just bigger
+                                            screens for now.
+                                        </p>
+                                    </div>
+                                </OnchainProviders>
+                            </LoaderWrapper>
+                        </LoaderProvider>
+                    </ModalWrapper>
+                </ModalProvider>
             </body>
         </html>
     );
