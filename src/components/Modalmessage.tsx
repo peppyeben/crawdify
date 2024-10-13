@@ -16,7 +16,7 @@ const Modalmessage = () => {
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative flex flex-col text-[#060606] justify-center items-center p-10 rounded-lg bg-white z-30 max-w-[28rem] w-full transition-all duration-500"
+                className="relative flex flex-col text-[#060606] justify-center items-center p-10 rounded-lg bg-white z-30 max-w-[35rem] w-full transition-all duration-500"
             >
                 <button
                     onClick={() => setIsShown(false)}

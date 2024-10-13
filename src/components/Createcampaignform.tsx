@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import WalletWrapper from "./WalletWrapper";
 
 interface FormData {
     name: string;
@@ -42,11 +41,6 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
                 [name]: value, // Update other fields as normal
             }));
         }
-
-        // setFormData({
-        //     ...formData,
-        //     [name]: value,
-        // });
     };
 
     const tomorrow = new Date();

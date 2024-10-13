@@ -2,9 +2,12 @@
 
 import { formatEther } from "ethers";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { abi } from "src/app/utils/abi";
 
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useModal } from "./Modalcontext";
+import { parseContractError } from "src/app/utils/errors";
 
 interface CampaignCardProps {
     title: string;
@@ -22,33 +25,72 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
     goal,
     amountRaised,
     description,
+    creator,
+    id,
 }) => {
+    const { setIsShown, setIcon, setMessage } = useModal();
     const account = useAccount();
     const { writeContractAsync } = useWriteContract();
+    const [creatorContracts, setCreatorContracts] = useState<any>(null);
+    const [idFromContract, setIdFromContract] = useState<bigint | null>(null);
+    const [donationAmount, setDonationAmount] = useState("");
 
-    const donateToCampaign = async (address?: string, metadataHash?: string) => {
-        console.log("CLICKED");
-        
-
-        // const result = await writeContractAsync({
-        //     abi,
-        //     address: `0x${
-        //         process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string
-        //     }`,
-        //     account: account.address,
-        //     functionName: "fundCampaign",
-        //     args: [address],
-        // });
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDonationAmount(event.target.value);
     };
 
-    const {data : creatorContracts} = useReadContract({
+    const donateToCampaign = async (creator?: string) => {
+        console.log("CLICKED");
+        if (idFromContract == null) {
+            console.log("NULL");
+            return;
+        }
+
+        if (Number(donationAmount) <= 0) {
+            setMessage("Amount must be greater than 0");
+            setIcon("no");
+            setIsShown(true);
+            return;
+        }
+
+        try {
+            const result = await writeContractAsync({
+                abi,
+                address: `0x${
+                    process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string
+                }`,
+                account: account.address,
+                functionName: "fundCampaign",
+                args: [`0x${String(creator).substring(2)}`, idFromContract],
+                value: BigInt(donationAmount),
+            });
+
+            console.log(result);
+        } catch (error) {
+            console.log(String(error));
+            setMessage(`ERROR: ${parseContractError(error)}`);
+            setIcon("no");
+            setIsShown(true);
+        }
+    };
+
+    const { data } = useReadContract({
         abi,
         address: `0x${process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string}`,
         functionName: "getCampaigns",
-        args: [`0x${String(address).substring(2)}`],
+        args: [`0x${String(creator).substring(2)}`],
     });
 
-    console.log(creatorContracts);
+    useEffect(() => {
+        if (data) {
+            setCreatorContracts(data);
+            console.log("Creator Contracts: ", data);
+            const campaign = data.filter(
+                (x) => x.projectDetailsHash == `0x${id}`,
+            );
+            setIdFromContract(campaign[0].id);
+        }
+    }, [data]);
 
     return (
         <section className="flex flex-col rounded-lg justify-start space-y-3 max-w-96 items-start mx-auto p-3 glass-background">
@@ -74,9 +116,11 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
                         className="rounded-lg px-3 py-2 w-full appearance-none outline-none border-none glass-background"
                         placeholder="0.1"
                         min={0}
+                        value={donationAmount}
+                        onChange={handleInputChange}
                     />
                     <button
-                        onClick={() => donateToCampaign()}
+                        onClick={() => donateToCampaign(creator)}
                         className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
                     >
                         Donate
