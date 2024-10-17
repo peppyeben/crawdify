@@ -25,6 +25,19 @@ interface FormData {
     bio: string;
 }
 
+interface UserCampaign {
+    id: bigint;
+    dateCreated?: number;
+    endDate: bigint;
+    projectGoal: bigint;
+    projectAmountRaised: bigint;
+    status: number;
+    isClaimedByAdmin?: boolean;
+    projectDetailsHash: `0x${string}`;
+    creator: `0x${string}`;
+    donors?: any[];
+}
+
 function Profile() {
     const account = useAccount();
     const { setIsShown, setMessage, setIcon } = useModal();
@@ -35,6 +48,8 @@ function Profile() {
         user_name: "",
         bio: "",
     });
+    const [shouldFetchCampaigns, setShouldFetchCampaigns] = useState(false);
+    const [userCampaigns, setuserCampaigns] = useState<UserCampaign[] | []>([]);
 
     const createProfile = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -115,6 +130,42 @@ function Profile() {
         account: account.address,
     });
 
+    const { data: campaignsQuery, refetch: refetchCampaigns } = useReadContract(
+        {
+            abi,
+            address: `0x${process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string}`,
+            functionName: "getCampaigns",
+            account: account.address,
+            args: shouldFetchCampaigns
+                ? [`0x${String(account.address).substring(2)}`]
+                : undefined,
+        },
+    );
+
+    // const profileCampaigns = shouldFetchCampaigns
+    //     ? campaignsQuery.data
+    //     : undefined;
+
+    useEffect(() => {
+        console.log(campaignsQuery);
+        // setuserCampaigns(campaignsQuery);
+        const userSortedCampaigns =
+            campaignsQuery?.map((campaign) => ({
+                creator: campaign.creator,
+                dateCreated: Number(campaign.dateCreated),
+                projectAmountRaised: campaign.projectAmountRaised,
+                projectGoal: campaign.projectGoal,
+                status: campaign.status,
+                id: campaign.id,
+                projectDetailsHash: campaign.projectDetailsHash,
+                endDate: campaign.endDate,
+            })) ?? [];
+
+        setuserCampaigns(
+            userSortedCampaigns.length > 0 ? userSortedCampaigns : [],
+        );
+    }, [campaignsQuery]);
+
     useEffect(() => {
         if (account.isConnected && account.address) {
             refetch();
@@ -124,7 +175,9 @@ function Profile() {
     useEffect(() => {
         if (profileData) {
             console.log(profileData);
+            refetchCampaigns();
             setProfile(profileData as ProfileData);
+            setShouldFetchCampaigns(true);
         }
     }, [profileData]);
 
@@ -150,13 +203,22 @@ function Profile() {
                                 </p>
                             </section>
                             <section className="flex flex-col min-h-[24rem] justify-start space-y-3 px-4 items-center rounded-lg glass-background w-2/3 py-4">
-                                <section className="flex flex-col justify-start items-center self-start">
-                                    <p className="font-bold text-lg text-left self-start">
-                                        Manage your Campaigns
-                                    </p>
-                                    <p className="text-sm text-left self-start">
-                                        Monitor your campaign's progress here.
-                                    </p>
+                                <section className="flex justify-start w-full">
+                                    <section className="flex flex-col justify-start items-center self-start w-full">
+                                        <p className="font-bold text-lg text-left self-start">
+                                            All your Campaigns
+                                        </p>
+                                        <p className="text-sm text-left self-start">
+                                            Monitor your campaign's progress
+                                            here.
+                                        </p>
+                                    </section>
+                                    <Link
+                                        href={"/create"}
+                                        className="rounded-lg flex justify-center items-center px-5 py-2 text-nowrap font-bold custom-gradient"
+                                    >
+                                        Create new campaign
+                                    </Link>
                                 </section>
                                 <section className="flex flex-col justify-center items-center space-y-2">
                                     {profile &&
@@ -178,12 +240,6 @@ function Profile() {
                                             </p>
                                         </>
                                     )}
-                                    <Link
-                                        href={"/create"}
-                                        className="rounded-xl w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
-                                    >
-                                        Create new campaign
-                                    </Link>
                                 </section>
                             </section>
                         </section>

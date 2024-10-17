@@ -8,6 +8,7 @@ import { abi } from "src/app/utils/abi";
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import { useModal } from "./Modalcontext";
 import { parseContractError } from "src/app/utils/errors";
+import { useRouter } from "next/navigation";
 
 interface CampaignCardProps {
     title: string;
@@ -34,6 +35,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
     const [creatorContracts, setCreatorContracts] = useState<any>(null);
     const [idFromContract, setIdFromContract] = useState<bigint | null>(null);
     const [donationAmount, setDonationAmount] = useState("");
+    const router = useRouter();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDonationAmount(event.target.value);
@@ -97,8 +99,17 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
         }
     }, [data]);
 
+    const navigateToNextPage = () => {
+        router.push(
+            `/explore/${creatorContracts[0].creator}${Number(creatorContracts[0].id)}`,
+        );
+    };
+
     return (
-        <section className="flex flex-col rounded-lg justify-start space-y-3 max-w-96 items-start mx-auto p-3 glass-background">
+        <section
+            onClick={() => navigateToNextPage()}
+            className="flex flex-col rounded-lg justify-start cursor-pointer space-y-3 max-w-96 items-start mx-auto p-3 glass-background hover:opacity-90"
+        >
             <img src="./img/planter.png" alt="" className="w-full" />
 
             {account.isConnected ? (

@@ -156,13 +156,13 @@ const Exploresection = () => {
 
     return (
         <section className="flex flex-col justify-start items-start pt-4 space-y-2 w-full">
-            <p className="text-xl font-bold">
+            {/* <p className="text-xl font-bold">
                 Make a Difference: Contribute to or Launch a Campaign
             </p>
             <p className="text-sm">
                 Join a community of changemakers and fund projects that matter.
-            </p>
-            <section className="flex justify-between items-center w-full pt-6">
+            </p> */}
+            {/* <section className="flex justify-between items-center w-full pt-6">
                 <p className="rounded-3xl bg-white px-4 py-2 text-gray-900">
                     All
                 </p>
@@ -186,7 +186,7 @@ const Exploresection = () => {
                         <line x1="21" y1="21" x2="15.8" y2="15.8" />
                     </svg>
                 </p>
-            </section>
+            </section> */}
             {exploreResults.length > 0 ? (
                 <section className="grid grid-cols-3 gap-4 pt-4 xl:grid-cols-4">
                     {exploreResults.map((res) => (
