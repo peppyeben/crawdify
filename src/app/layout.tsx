@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Crawdify",
         description: "Your dreams, funded by community",
-        images: [`${NEXT_PUBLIC_URL}/crowdify.png`],
+        images: [`${NEXT_PUBLIC_URL}/crawdify.png`],
     },
 };
 
