@@ -35,6 +35,7 @@ export const metadata: Metadata = {
             `${NEXT_PUBLIC_URL}/crawdify.png`,
         ],
     },
+    icons: "https://crawdify.vercel.app/crawdify.png",
 };
 
 export default function RootLayout({
