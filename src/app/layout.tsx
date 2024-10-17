@@ -30,7 +30,10 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Crawdify",
         description: "Your dreams, funded by community",
-        images: [`${NEXT_PUBLIC_URL}/crawdify.png`],
+        images: [
+            `https://crawdify.vercel.app/crawdify.png`,
+            `${NEXT_PUBLIC_URL}/crawdify.png`,
+        ],
     },
 };
 
