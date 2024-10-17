@@ -4,10 +4,10 @@ import Createcampaignform from "src/components/Createcampaignform";
 import { useModal } from "src/components/Modalcontext";
 import axios from "axios";
 import { parseUnits, isHexString, getBytes, toBeHex } from "ethers";
-import TransactionWrapper from "src/components/TransactionWrapper";
 import { abi } from "../utils/abi";
 import { useAccount, useConnect, useDisconnect, useWriteContract } from "wagmi";
 import { useLoader } from "src/components/Loadercontext";
+import { parseContractError } from "../utils/errors";
 
 function Create() {
     const account = useAccount();
@@ -33,12 +33,15 @@ function Create() {
         return toBeHex(bytes);
     }
 
-    const handleSubmit = async (formData: {
-        name: string;
-        description: string;
-        goal: string;
-        endDate: number;
-    }) => {
+    const handleSubmit = async (
+        formData: {
+            title: string;
+            description: string;
+            goal: string;
+            endDate: number;
+        },
+        resetForm: () => void,
+    ) => {
         if (!account.isConnected) {
             setIcon("no");
             setMessage("Please connect your Wallet");
@@ -51,26 +54,21 @@ function Create() {
         }
 
         const goalInWei = convertToBigIntString(formData.goal);
-
         setIsLoading(true);
 
         try {
             const response = await axios.post(
-                process.env.NEXT_PUBLIC_WEAVEDB_SERVER_URL as string,
+                `${process.env.NEXT_PUBLIC_DB_URL as string}/store`,
                 {
                     data: {
                         ...formData,
-                        goal: goalInWei,
-                        userAddress: account.address,
+                        end_date: formData.endDate * 1000,
+                        user_address: account.address,
                     },
-                    collection_name: process.env
-                        .NEXT_PUBLIC_WEAVEDB_COLLECTION_NAME as string,
                 },
             );
             // setExploreCampaigns(response.data);
             const metadataHash = `0x${response.data.result}`;
-            console.log(metadataHash);
-            console.log(hexToBytes(metadataHash));
 
             const result = await writeContractAsync({
                 abi,
@@ -96,14 +94,13 @@ function Create() {
                 setIsShown(true);
                 return;
             }
+            resetForm();
         } catch (error: any) {
-            // setError(error);
             console.log(error);
 
-            if (error.status == 500) {
-                handleSubmit(formData);
-                return;
-            }
+            setMessage(`ERROR: ${parseContractError(error)}`);
+            setIcon("no");
+            setIsShown(true);
 
             setIsLoading(false);
         }

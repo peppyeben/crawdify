@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { abi } from "../utils/abi";
 import { useEffect, useState } from "react";
 import WalletWrapper from "src/components/WalletWrapper";
+import axios from "axios";
+import { useModal } from "src/components/Modalcontext";
+import { useLoader } from "src/components/Loadercontext";
+import { parseContractError } from "../utils/errors";
 
 interface ProfileData {
     noOfCampaignsFunded: bigint;
@@ -23,6 +27,9 @@ interface FormData {
 
 function Profile() {
     const account = useAccount();
+    const { setIsShown, setMessage, setIcon } = useModal();
+    const { setIsLoading } = useLoader();
+    const { writeContractAsync } = useWriteContract();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [formData, setFormData] = useState<FormData>({
         user_name: "",
@@ -31,7 +38,58 @@ function Profile() {
 
     const createProfile = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(formData);
+        const usernamePattern = /^[A-Za-z]+$/;
+
+        if (
+            !usernamePattern.test(formData.user_name) ||
+            formData.user_name.length < 5 ||
+            formData.user_name.length > 15
+        ) {
+            setMessage(
+                "Invalid username. Only letters allowed, and must be between 5 and 15 characters.",
+            );
+            setIcon("no");
+            setIsShown(true);
+
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_DB_URL as string}/profile`,
+                {
+                    data: {
+                        ...formData,
+                        user_address: account.address,
+                    },
+                },
+            );
+            const metadataHash = `0x${response.data.result}`;
+            const result = await writeContractAsync({
+                abi,
+                address: `0x${
+                    process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string
+                }`,
+                account: account.address,
+                functionName: "createProfile",
+                args: [`0x${response.data.result}`],
+            });
+
+            console.log(result);
+            setMessage("Profile successfully created");
+            setIcon("yes");
+            setIsShown(true);
+            setIsLoading(false);
+            await refetch();
+        } catch (error: any) {
+            setMessage(`ERROR: ${parseContractError(error)}`);
+            setIcon("no");
+            setIsShown(true);
+
+            setIsLoading(false);
+        }
     };
 
     const handleChange = (
@@ -54,6 +112,7 @@ function Profile() {
         abi,
         address: `0x${process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string}`,
         functionName: "getProfile",
+        account: account.address,
     });
 
     useEffect(() => {
@@ -145,7 +204,8 @@ function Profile() {
                                         value={formData.user_name}
                                         onChange={handleChange}
                                         name="user_name"
-                                        minLength={3}
+                                        minLength={5}
+                                        maxLength={15}
                                         required
                                         autoComplete="off"
                                     />
@@ -166,7 +226,8 @@ function Profile() {
                                         }}
                                         value={formData.bio}
                                         onChange={handleChange}
-                                        minLength={10}
+                                        minLength={15}
+                                        maxLength={80}
                                         required
                                     ></textarea>
                                 </p>

@@ -3,21 +3,22 @@
 import React, { useState, useEffect } from "react";
 
 interface FormData {
-    name: string;
+    title: string;
     description: string;
     goal: string;
     endDate: number;
 }
 
 interface CreateCampaignFormProps {
-    onSubmit: (formData: FormData) => void;
+    onSubmit: (formData: FormData, resetForm: () => void) => void;
+
 }
 
 const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
     onSubmit,
 }) => {
     const [formData, setFormData] = useState<FormData>({
-        name: "",
+        title: "",
         description: "",
         goal: "",
         endDate: 0,
@@ -29,18 +30,27 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
         const { name, value } = e.target;
 
         if (name == "endDate") {
-            const date = new Date(value); // Convert the input value to a Date object
-            const epochSeconds = Math.floor(date.getTime() / 1000); // Convert to seconds (epoch time)
+            const date = new Date(value);
+            const epochSeconds = Math.floor(date.getTime() / 1000);
             setFormData((prevData) => ({
                 ...prevData,
-                [name]: epochSeconds, // Update the state with the epoch seconds
+                [name]: epochSeconds,
             }));
         } else {
             setFormData((prevData) => ({
                 ...prevData,
-                [name]: value, // Update other fields as normal
+                [name]: value,
             }));
         }
+    };
+
+    const resetForm = () => {
+        setFormData({
+            title: "",
+            description: "",
+            goal: "",
+            endDate: 0,
+        });
     };
 
     const tomorrow = new Date();
@@ -49,7 +59,7 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
 
     const createCampaign = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        onSubmit(formData);
+        onSubmit(formData, resetForm);
     };
 
     return (
@@ -66,9 +76,9 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
                         type="text"
                         placeholder="GreenFund: Sustain Earth"
                         className="px-4 py-6 pb-3 outline-none border-none rounded-lg glass-background w-full"
-                        value={formData.name}
+                        value={formData.title}
                         onChange={handleChange}
-                        name="name"
+                        name="title"
                         minLength={3}
                         required
                         autoComplete="off"
@@ -122,16 +132,17 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
 
                 <textarea
                     name="description"
-                    rows={10} // Set default rows, but we'll control the height with CSS
+                    rows={10}
                     className="w-full flex-grow glass-background appearance-none resize-none outline-none border-none rounded-lg px-4 py-6 pb-3 max-h-96 overflow-hidden custom-textarea"
                     placeholder="Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsam, eveniet!..."
                     style={{
-                        overflowY: "hidden", // Hides the scrollbar
-                        resize: "none", // Prevents resizing by user
+                        overflowY: "hidden",
+                        resize: "none",
                     }}
                     value={formData.description}
                     onChange={handleChange}
-                    minLength={50}
+                    minLength={30}
+                    maxLength={120}
                     required
                 ></textarea>
             </p>

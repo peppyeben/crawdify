@@ -66,6 +66,11 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
             });
 
             console.log(result);
+            if (result) {
+                setMessage(`Successfully donated to campaign`);
+                setIcon("yes");
+                setIsShown(true);
+            }
         } catch (error) {
             console.log(String(error));
             setMessage(`ERROR: ${parseContractError(error)}`);
