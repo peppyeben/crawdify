@@ -29,6 +29,7 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
     const [campaignMetadata, setCampaignMetadata] = useState<
         CampaignMetadata[] | []
     >([]);
+    const [imageUrl, setImageUrl] = useState(1);
 
     const [donationAmount, setDonationAmount] = useState("");
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +58,7 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
 
     useEffect(() => {
         console.log(address);
+        setImageUrl(Math.floor(Math.random() * 6) + 1);
     }, []);
 
     const donateToCampaign = async () => {
@@ -186,8 +188,7 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                             <div
                                 className="w-full max-h-[30rem] h-[30rem] bg-cover bg-center rounded-md"
                                 style={{
-                                    backgroundImage:
-                                        "url('../img/planter.png')",
+                                    backgroundImage: `url('../static/${imageUrl}.jpeg')`,
                                 }}
                             ></div>
                             <section className="p-5 glass-background rounded-md w-full">
@@ -226,20 +227,44 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                                     {formatEther(campaignData.projectGoal)} ETH
                                 </span>
                             </p>
-                            <input
-                                type="number"
-                                className="rounded-lg px-3 py-2 w-full appearance-none outline-none border-none glass-background"
-                                placeholder="0.1"
-                                min={0}
-                                value={donationAmount}
-                                onChange={handleInputChange}
-                            />
-                            <button
-                                onClick={() => donateToCampaign()}
-                                className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
-                            >
-                                Donate
-                            </button>
+                            {campaignData.creator == account.address ? (
+                                <>
+                                    {campaignData.projectAmountRaised ==
+                                    campaignData.projectGoal ? (
+                                        <section className="flex space-x-5 justify-center items-center py-3">
+                                            <button
+                                                // onClick={() => donateToCampaign()}
+                                                className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                                            >
+                                                Claim funds from campaign
+                                            </button>
+                                        </section>
+                                    ) : (
+                                        <>
+                                        <p className="text-lg">
+                                            Campaign goal not reached yet
+                                        </p>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <input
+                                        type="number"
+                                        className="rounded-lg px-3 py-2 w-full appearance-none outline-none border-none glass-background"
+                                        placeholder="0.1"
+                                        min={0}
+                                        value={donationAmount}
+                                        onChange={handleInputChange}
+                                    />
+                                    <button
+                                        onClick={() => donateToCampaign()}
+                                        className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                                    >
+                                        Donate
+                                    </button>{" "}
+                                </>
+                            )}
                         </>
                     ) : (
                         <div className="w-full">

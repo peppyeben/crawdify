@@ -198,6 +198,7 @@ const Exploresection = () => {
                             endDate={Number(res.end_date)}
                             creator={res.creator}
                             id={res.id}
+                            imageUrl={Math.floor(Math.random() * 6) + 1}
                             key={res.id}
                         />
                     ))}

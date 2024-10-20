@@ -16,17 +16,17 @@ const Modalmessage = () => {
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative flex flex-col text-[#060606] justify-center items-center p-10 rounded-lg bg-white z-30 max-w-[35rem] w-full transition-all duration-500"
+                className="relative flex flex-col text-[#060606] justify-center items-center p-10 rounded-2xl glass-background-loader z-30 max-w-[35rem] w-full transition-all duration-500"
             >
                 <button
                     onClick={() => setIsShown(false)}
-                    className="absolute rounded-full right-2 top-2 shadow-lg text-red-500 font-sm font-bold py-2 px-4 uppercase transition-all duration-200 hover:bg-gray-100"
+                    className="absolute rounded-full right-2 top-2 shadow-lg text-red-500 font-sm font-bold py-2 px-4 uppercase glass-background transition-all duration-200 hover:bg-gray-50 hover:bg-opacity-30"
                 >
                     x
                 </button>
                 <img src={iconSrc} alt="" className="w-24" />
 
-                <p className="text-lg font-bold pt-6 w-full text-wrap text-center">
+                <p className="text-lg text-white font-bold pt-6 w-full text-wrap text-center">
                     {message}
                 </p>
             </div>

@@ -9,6 +9,8 @@ import axios from "axios";
 import { useModal } from "src/components/Modalcontext";
 import { useLoader } from "src/components/Loadercontext";
 import { parseContractError } from "../utils/errors";
+import { useRouter } from "next/navigation";
+import { formatEther } from "ethers";
 
 interface ProfileData {
     noOfCampaignsFunded: bigint;
@@ -38,6 +40,12 @@ interface UserCampaign {
     donors?: any[];
 }
 
+interface CampaignDetails {
+    _id: string;
+    title: string;
+    [key: string]: any; // This allows for dynamic properties if the structure is unknown
+}
+
 function Profile() {
     const account = useAccount();
     const { setIsShown, setMessage, setIcon } = useModal();
@@ -50,6 +58,10 @@ function Profile() {
     });
     const [shouldFetchCampaigns, setShouldFetchCampaigns] = useState(false);
     const [userCampaigns, setuserCampaigns] = useState<UserCampaign[] | []>([]);
+    const router = useRouter();
+    const [userCampaignDetails, setUserCampaignDetails] = useState<{
+        [key: string]: CampaignDetails;
+    }>({});
 
     const createProfile = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -142,13 +154,8 @@ function Profile() {
         },
     );
 
-    // const profileCampaigns = shouldFetchCampaigns
-    //     ? campaignsQuery.data
-    //     : undefined;
-
     useEffect(() => {
         console.log(campaignsQuery);
-        // setuserCampaigns(campaignsQuery);
         const userSortedCampaigns =
             campaignsQuery?.map((campaign) => ({
                 creator: campaign.creator,
@@ -180,6 +187,57 @@ function Profile() {
             setShouldFetchCampaigns(true);
         }
     }, [profileData]);
+
+    const navigateToNextPage = (creatorAddress: any, id: bigint) => {
+        router.push(`/explore/${creatorAddress}${Number(id)}`);
+    };
+
+    useEffect(() => {
+        if (userCampaigns && userCampaigns.length > 0) {
+            const getCampaignDetailsFromDB = async (id: string) => {
+                console.log(id);
+                const campaign = await axios.get(
+                    `${process.env.NEXT_PUBLIC_DB_URL as string}/store`,
+                    {
+                        params: {
+                            data: {
+                                id: id.substring(2),
+                            },
+                        },
+                    },
+                );
+                return campaign.data.campaigns[0];
+            };
+
+            // Create an array of promises for fetching campaign details
+            const fetchCampaignDetails = async () => {
+                const details: { [key: string]: CampaignDetails } = {};
+
+                await Promise.all(
+                    userCampaigns.map(async (campaign) => {
+                        try {
+                            const campaignsFromDB =
+                                await getCampaignDetailsFromDB(
+                                    campaign.projectDetailsHash,
+                                );
+                            details[campaignsFromDB._id] = campaignsFromDB;
+                        } catch (error) {
+                            console.error(
+                                `Error fetching campaign with ID: ${campaign.projectDetailsHash}`,
+                                error,
+                            );
+                        }
+                    }),
+                );
+
+                // Update state with the fetched campaign details
+                setUserCampaignDetails(details);
+                console.log(details);
+            };
+
+            fetchCampaignDetails();
+        }
+    }, [userCampaigns]);
 
     return (
         <>
@@ -220,14 +278,94 @@ function Profile() {
                                         Create new campaign
                                     </Link>
                                 </section>
-                                <section className="flex flex-col justify-center items-center space-y-2">
+                                <section className="flex flex-col justify-center items-center space-y-5">
                                     {profile &&
                                     Number(profile.noOfCampaignsCreated) > 0 ? (
-                                        <p>
-                                            You have created{" "}
-                                            {profile.noOfCampaignsCreated.toString()}{" "}
-                                            campaign(s)
-                                        </p>
+                                        <>
+                                            <p>
+                                                You have created{" "}
+                                                {profile.noOfCampaignsCreated.toString()}{" "}
+                                                campaign(s)
+                                            </p>
+                                            <section className="grid grid-cols-3 gap-4">
+                                                {userCampaigns.map(
+                                                    (campaign) => (
+                                                        <section
+                                                            onClick={() =>
+                                                                navigateToNextPage(
+                                                                    campaign.creator,
+                                                                    campaign.id,
+                                                                )
+                                                            }
+                                                            className="flex flex-col rounded-lg justify-start cursor-pointer space-y-3 max-w-96 items-start mx-auto p-3 glass-background hover:opacity-90"
+                                                            key={campaign.id}
+                                                        >
+                                                            <img
+                                                                src={`./static/${Math.floor(Math.random() * 6) + 1}.jpeg`}
+                                                                alt=""
+                                                                className="w-full"
+                                                            />
+
+                                                            {account.isConnected ? (
+                                                                <>
+                                                                    <p className="font-bold">
+                                                                        {Object.keys(
+                                                                            userCampaignDetails,
+                                                                        )
+                                                                            .length >
+                                                                        0
+                                                                            ? userCampaignDetails[
+                                                                                  String(
+                                                                                      campaign.projectDetailsHash,
+                                                                                  ).substring(
+                                                                                      2,
+                                                                                  )
+                                                                              ]
+                                                                                ? userCampaignDetails[
+                                                                                      String(
+                                                                                          campaign.projectDetailsHash,
+                                                                                      ).substring(
+                                                                                          2,
+                                                                                      )
+                                                                                  ]
+                                                                                      .title
+                                                                                : "Campaign details not found."
+                                                                            : "No campaign details loaded."}
+                                                                    </p>
+                                                                    <div className="w-full bg-[#023430] rounded-full h-[0.35rem]">
+                                                                        <div
+                                                                            className="bg-[#bce26b] h-full rounded-full"
+                                                                            style={{
+                                                                                width: `${(Number(formatEther(campaign.projectAmountRaised)) / Number(formatEther(campaign.projectGoal))) * 100}%`,
+                                                                            }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <p className="font-bold text-left">
+                                                                        {formatEther(
+                                                                            campaign.projectAmountRaised,
+                                                                        )}{" "}
+                                                                        ETH
+                                                                        raised
+                                                                        of{" "}
+                                                                        {formatEther(
+                                                                            campaign.projectGoal,
+                                                                        )}{" "}
+                                                                        ETH
+                                                                    </p>
+                                                                </>
+                                                            ) : (
+                                                                <div>
+                                                                    <p className="text-lg font-bold">
+                                                                        Connect
+                                                                        Wallet
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </section>
+                                                    ),
+                                                )}
+                                            </section>
+                                        </>
                                     ) : (
                                         <>
                                             <img
