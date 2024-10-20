@@ -209,7 +209,6 @@ function Profile() {
                 return campaign.data.campaigns[0];
             };
 
-            // Create an array of promises for fetching campaign details
             const fetchCampaignDetails = async () => {
                 const details: { [key: string]: CampaignDetails } = {};
 
@@ -230,7 +229,6 @@ function Profile() {
                     }),
                 );
 
-                // Update state with the fetched campaign details
                 setUserCampaignDetails(details);
                 console.log(details);
             };
@@ -238,6 +236,33 @@ function Profile() {
             fetchCampaignDetails();
         }
     }, [userCampaigns]);
+
+    const withdrawFundsFromCampaign = async () => {
+        try {
+            setIsLoading(true);
+            const result = await writeContractAsync({
+                abi,
+                address: `0x${
+                    process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string
+                }`,
+                account: account.address,
+                functionName: "withdrawFunds",
+                args: [],
+            });
+
+            if (result) {
+                setMessage(`Balance successfully withdrawn, check wallet`);
+                setIcon("yes");
+                setIsShown(true);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setMessage(`ERROR: ${parseContractError(error)}`);
+            setIcon("no");
+            setIsShown(true);
+            setIsLoading(false);
+        }
+    };
 
     return (
         <>
@@ -255,7 +280,12 @@ function Profile() {
                                             : "0.00"}{" "}
                                         ETH
                                     </span>
-                                    <button className="rounded-lg flex justify-center items-center px-5 py-2 font-bold custom-gradient">
+                                    <button
+                                        onClick={() => {
+                                            withdrawFundsFromCampaign();
+                                        }}
+                                        className="rounded-lg flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                                    >
                                         Withdraw
                                     </button>
                                 </p>

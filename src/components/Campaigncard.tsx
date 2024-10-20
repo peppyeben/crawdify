@@ -9,6 +9,8 @@ import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import { useModal } from "./Modalcontext";
 import { parseContractError } from "src/app/utils/errors";
 import { useRouter } from "next/navigation";
+import { parseEther } from "ethers";
+import { useLoader } from "./Loadercontext";
 
 interface CampaignCardProps {
     title: string;
@@ -31,6 +33,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
     imageUrl,
 }) => {
     const { setIsShown, setIcon, setMessage } = useModal();
+    const { setIsLoading } = useLoader();
     const account = useAccount();
     const { writeContractAsync } = useWriteContract();
     const [creatorContracts, setCreatorContracts] = useState<any>(null);
@@ -49,6 +52,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
             return;
         }
 
+        console.log(Number(donationAmount));
         if (Number(donationAmount) <= 0) {
             setMessage("Amount must be greater than 0");
             setIcon("no");
@@ -57,6 +61,8 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
         }
 
         try {
+            setIsLoading(true);
+
             const result = await writeContractAsync({
                 abi,
                 address: `0x${
@@ -65,7 +71,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
                 account: account.address,
                 functionName: "fundCampaign",
                 args: [`0x${String(creator).substring(2)}`, idFromContract],
-                value: BigInt(donationAmount),
+                value: parseEther(donationAmount),
             });
 
             console.log(result);
@@ -73,12 +79,14 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
                 setMessage(`Successfully donated to campaign`);
                 setIcon("yes");
                 setIsShown(true);
+                setIsLoading(false);
             }
         } catch (error) {
             console.log(String(error));
             setMessage(`ERROR: ${parseContractError(error)}`);
             setIcon("no");
             setIsShown(true);
+            setIsLoading(false);
         }
     };
 
@@ -101,9 +109,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
     }, [data]);
 
     const navigateToNextPage = (creator: any, idFromContract: any) => {
-        router.push(
-            `/explore/${creator}${Number(idFromContract)}`,
-        );
+        router.push(`/explore/${creator}${Number(idFromContract)}`);
         // console.log(creator)
         // console.log(idFromContract)
     };

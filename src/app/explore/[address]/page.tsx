@@ -35,6 +35,7 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDonationAmount(event.target.value);
     };
+    const [userDonationData, setUserDonationData] = useState<bigint | 0>(0);
 
     useEffect(() => {
         // Regular expression to match Ethereum address followed by a number
@@ -124,6 +125,22 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
         args: [`0x${extractedAddress.substring(2)}`, BigInt(extractedNumber)],
     });
 
+    const {
+        data: donationData,
+        isError: isErrorFetchDonationData,
+        refetch: refetchDonationData,
+    } = useReadContract({
+        abi,
+        address: `0x${process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string}`,
+        functionName: "getAmountDonatedToCampaign",
+        account: account.address,
+        args: [
+            `0x${extractedAddress.substring(2)}`,
+            `0x${String(account.address).substring(2)}`,
+            BigInt(extractedNumber),
+        ],
+    });
+
     const SCALE_FACTOR = 1000000n;
 
     const fetchCampaignDetails = async () => {
@@ -155,8 +172,6 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                     },
                 );
                 const { title, description } = response.data.campaigns[0];
-                console.log(title);
-                console.log(description);
                 setCampaignMetadata([{ title, description }]);
             } catch (error) {
                 setMessage(`ERROR: ${parseContractError(error)}`);
@@ -174,6 +189,54 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
             fetchCampaignDetails();
         }
     }, [campaignData]);
+
+    useEffect(() => {
+        console.log(isErrorFetchDonationData);
+        console.log(donationData);
+        if (donationData) {
+            refetchDonationData();
+            setUserDonationData(donationData);
+            console.log(`Donation data: ${donationData}`);
+        } else {
+            console.log(`Can't find donation data`);
+            refetchDonationData();
+        }
+    }, [account.address]);
+
+    const claimFundsFromCampaign = async () => {
+        setIsLoading(true);
+
+        try {
+            const result = await writeContractAsync({
+                abi,
+                address: `0x${
+                    process.env.NEXT_PUBLIC_CRAWDIFY_BASE_SEPOLIA as string
+                }`,
+                account: account.address,
+                functionName: "claimCampaignFunds",
+                args: [
+                    `0x${String(extractedAddress).substring(2)}`,
+                    BigInt(extractedNumber),
+                ],
+            });
+
+            console.log(result);
+            if (result) {
+                setMessage(
+                    `Campaign funds successfully claimed, proceed to profile.`,
+                );
+                setIcon("yes");
+                setIsShown(true);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.log(error);
+            setMessage(`ERROR: ${parseContractError(error)}`);
+            setIcon("no");
+            setIsShown(true);
+            setIsLoading(false);
+        }
+    };
 
     return (
         <section className="w-full flex flex-col space-y-3 justify-start items-start px-6 glass-background py-4 rounded-lg">
@@ -194,7 +257,9 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                                         {campaignMetadata[0].title}
                                     </p>
                                     <section className="p-5 glass-background rounded-md w-full">
-                                        {campaignMetadata[0].description}
+                                        <p className="w-full break-words">
+                                            {campaignMetadata[0].description}
+                                        </p>
                                     </section>
                                     <div className="w-full bg-[#023430] rounded-full h-[0.35rem]">
                                         <div
@@ -226,7 +291,9 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                                             campaignData.projectGoal ? (
                                                 <section className="flex space-x-5 justify-center items-center py-3">
                                                     <button
-                                                        // onClick={() => donateToCampaign()}
+                                                        onClick={() =>
+                                                            claimFundsFromCampaign()
+                                                        }
                                                         className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
                                                     >
                                                         Claim funds from
@@ -235,6 +302,41 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                                                 </section>
                                             ) : (
                                                 <>
+                                                    {Number(
+                                                        campaignData.endDate,
+                                                    ) *
+                                                        1000 <=
+                                                    new Date().getTime() ? (
+                                                        <div>
+                                                            <p>
+                                                                Ended at:{" "}
+                                                                {new Date(
+                                                                    Number(
+                                                                        campaignData.endDate,
+                                                                    ) * 1000,
+                                                                ).toLocaleDateString()}
+                                                            </p>
+                                                            {campaignData.creator !=
+                                                            account.address ? (
+                                                                <></>
+                                                            ) : (
+                                                                <></>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            Still Active
+                                                            <p>
+                                                                Ends at:{" "}
+                                                                {new Date(
+                                                                    Number(
+                                                                        campaignData.endDate,
+                                                                    ) * 1000,
+                                                                ).toLocaleDateString()}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
                                                     <p className="text-lg">
                                                         Campaign goal not
                                                         reached yet
