@@ -182,89 +182,88 @@ const ExploreCampaign = ({ params }: { params: { address: string } }) => {
                     Number(campaignData?.dateCreated) > 0 &&
                     campaignMetadata.length > 0 ? (
                         <>
-                            <p className="text-3xl font-extrabold">
-                                {campaignMetadata[0].title}
-                            </p>
-                            <div
-                                className="w-full max-h-[30rem] h-[30rem] bg-cover bg-center rounded-md"
-                                style={{
-                                    backgroundImage: `url('../static/${imageUrl}.jpeg')`,
-                                }}
-                            ></div>
-                            <section className="p-5 glass-background rounded-md w-full">
-                                {campaignMetadata[0].description}
-                            </section>
-                            <div className="w-full bg-[#023430] rounded-full h-[0.35rem]">
+                            <section className="flex w-full space-x-4">
                                 <div
-                                    className="bg-[#bce26b] h-full rounded-full"
+                                    className="w-1/2 max-h-[30rem] h-[30rem] bg-cover bg-center rounded-md"
                                     style={{
-                                        width: `${
-                                            campaignData.projectAmountRaised.toString() !=
-                                            "0n"
-                                                ? `${
-                                                      Number(
-                                                          (parseUnits(
-                                                              campaignData.projectAmountRaised.toString(),
-                                                              "wei",
-                                                          ) *
-                                                              SCALE_FACTOR) /
-                                                              parseUnits(
-                                                                  campaignData.projectGoal.toString(),
-                                                                  "wei",
-                                                              ),
-                                                      ) / Number(SCALE_FACTOR)
-                                                  }%`
-                                                : "0%"
-                                        }`,
+                                        backgroundImage: `url('../static/${imageUrl}.jpeg')`,
                                     }}
                                 ></div>
-                            </div>
-                            <p className="font-bold text-left">
-                                {formatEther(campaignData.projectAmountRaised)}{" "}
-                                ETH
-                                <span className="font-normal"> raised of </span>
-                                <span className="font-bold">
-                                    {formatEther(campaignData.projectGoal)} ETH
-                                </span>
-                            </p>
-                            {campaignData.creator == account.address ? (
-                                <>
-                                    {campaignData.projectAmountRaised ==
-                                    campaignData.projectGoal ? (
-                                        <section className="flex space-x-5 justify-center items-center py-3">
-                                            <button
-                                                // onClick={() => donateToCampaign()}
-                                                className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
-                                            >
-                                                Claim funds from campaign
-                                            </button>
-                                        </section>
+                                <section className="flex flex-col space-y-3 w-1/2">
+                                    <p className="text-3xl font-extrabold">
+                                        {campaignMetadata[0].title}
+                                    </p>
+                                    <section className="p-5 glass-background rounded-md w-full">
+                                        {campaignMetadata[0].description}
+                                    </section>
+                                    <div className="w-full bg-[#023430] rounded-full h-[0.35rem]">
+                                        <div
+                                            className="bg-[#bce26b] h-full rounded-full"
+                                            style={{
+                                                width: `${(Number(formatEther(campaignData.projectAmountRaised)) / Number(formatEther(campaignData.projectGoal))) * 100}%`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                    <p className="font-bold text-left">
+                                        {formatEther(
+                                            campaignData.projectAmountRaised,
+                                        )}{" "}
+                                        ETH
+                                        <span className="font-normal">
+                                            {" "}
+                                            raised of{" "}
+                                        </span>
+                                        <span className="font-bold">
+                                            {formatEther(
+                                                campaignData.projectGoal,
+                                            )}{" "}
+                                            ETH
+                                        </span>
+                                    </p>
+                                    {campaignData.creator == account.address ? (
+                                        <>
+                                            {campaignData.projectAmountRaised ==
+                                            campaignData.projectGoal ? (
+                                                <section className="flex space-x-5 justify-center items-center py-3">
+                                                    <button
+                                                        // onClick={() => donateToCampaign()}
+                                                        className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                                                    >
+                                                        Claim funds from
+                                                        campaign
+                                                    </button>
+                                                </section>
+                                            ) : (
+                                                <>
+                                                    <p className="text-lg">
+                                                        Campaign goal not
+                                                        reached yet
+                                                    </p>
+                                                </>
+                                            )}
+                                        </>
                                     ) : (
                                         <>
-                                        <p className="text-lg">
-                                            Campaign goal not reached yet
-                                        </p>
+                                            <input
+                                                type="number"
+                                                className="rounded-lg px-3 py-2 w-full appearance-none outline-none border-none glass-background"
+                                                placeholder="0.1"
+                                                min={0}
+                                                value={donationAmount}
+                                                onChange={handleInputChange}
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    donateToCampaign()
+                                                }
+                                                className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
+                                            >
+                                                Donate
+                                            </button>{" "}
                                         </>
                                     )}
-                                </>
-                            ) : (
-                                <>
-                                    <input
-                                        type="number"
-                                        className="rounded-lg px-3 py-2 w-full appearance-none outline-none border-none glass-background"
-                                        placeholder="0.1"
-                                        min={0}
-                                        value={donationAmount}
-                                        onChange={handleInputChange}
-                                    />
-                                    <button
-                                        onClick={() => donateToCampaign()}
-                                        className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
-                                    >
-                                        Donate
-                                    </button>{" "}
-                                </>
-                            )}
+                                </section>
+                            </section>
                         </>
                     ) : (
                         <div className="w-full">

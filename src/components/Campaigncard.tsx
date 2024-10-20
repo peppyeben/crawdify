@@ -28,7 +28,7 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
     description,
     creator,
     id,
-    imageUrl
+    imageUrl,
 }) => {
     const { setIsShown, setIcon, setMessage } = useModal();
     const account = useAccount();
@@ -100,22 +100,20 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
         }
     }, [data]);
 
-    const navigateToNextPage = () => {
+    const navigateToNextPage = (creator: any, idFromContract: any) => {
         router.push(
-            `/explore/${creatorContracts[0].creator}${Number(creatorContracts[0].id)}`,
+            `/explore/${creator}${Number(idFromContract)}`,
         );
+        // console.log(creator)
+        // console.log(idFromContract)
     };
 
     return (
         <section
-            onClick={() => navigateToNextPage()}
+            onClick={() => navigateToNextPage(creator, idFromContract)}
             className="flex flex-col rounded-lg justify-start cursor-pointer space-y-3 max-w-96 items-start mx-auto p-3 glass-background hover:opacity-90"
         >
-            <img
-                src={`./static/${imageUrl}.jpeg`}
-                alt=""
-                className="w-full"
-            />
+            <img src={`./static/${imageUrl}.jpeg`} alt="" className="w-full" />
 
             {account.isConnected ? (
                 <>
@@ -139,11 +137,15 @@ const Campaigncard: React.FC<CampaignCardProps> = ({
                         min={0}
                         value={donationAmount}
                         onChange={handleInputChange}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
                     />
                     <button
                         onClick={(e) => {
-                            e.stopPropagation()
-                            donateToCampaign(creator)}}
+                            e.stopPropagation();
+                            donateToCampaign(creator);
+                        }}
                         className="rounded-lg w-full flex justify-center items-center px-5 py-2 font-bold custom-gradient"
                     >
                         Donate

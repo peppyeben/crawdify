@@ -54,7 +54,7 @@ const Createcampaignform: React.FC<CreateCampaignFormProps> = ({
     };
 
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate() + 2);
     const minDate = tomorrow.toISOString().split("T")[0];
 
     const createCampaign = async (e: React.FormEvent<HTMLFormElement>) => {
