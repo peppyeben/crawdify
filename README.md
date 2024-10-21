@@ -42,3 +42,10 @@ Traditional crowdfunding platforms often involve lengthy approval processes and 
 For creators like Osas, Crawdify represents a significant step forward. She now has a platform where her dreams are not just possible but achievable with the support of her community.
 
 Together, we can create a brighter future for Benin City. Let us empower our community, one dream at a time.
+
+
+## Contract Address
+
+This is the Crawdify contract deployed on Base Sepolia network:
+
+[0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a](https://sepolia.basescan.org/address/0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a)
