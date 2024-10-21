@@ -48,4 +48,8 @@ Together, we can create a brighter future for Benin City. Let us empower our com
 
 This is the Crawdify contract deployed on Base Sepolia network:
 
-[0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a](https://sepolia.basescan.org/address/0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a)
+
+- [Sepolia BaseScan](https://sepolia.basescan.org/address/0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a)
+- [Base Sepolia BlockScout](https://base-sepolia.blockscout.com/address/0x8F3024D12c3D702930F2fF98Aa8e2261F0be490a)
+
+Check the contract details using the links above.
